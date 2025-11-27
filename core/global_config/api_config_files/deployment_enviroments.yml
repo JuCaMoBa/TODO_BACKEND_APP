@@ -1,0 +1,6 @@
+# PROD: produccion
+# STAGE: preproduccion
+# DEV: desarrollo
+# TEST: testing
+
+environment: DEV
