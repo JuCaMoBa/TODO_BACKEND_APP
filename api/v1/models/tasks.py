@@ -1,0 +1,24 @@
+""" Modulo que genera las tablas en la base de datos para la gestion de tareas """
+
+from api.v1.database.connection import DatabaseConnection
+import logging
+
+
+def create_tasks_tables(db_url: str):
+    """Crea las tablas en la base de datos si no existen para la gestion de tareas."""
+
+    sql = """
+    CREATE TABLE IF NOT EXISTS tasks (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        completed BOOLEAN DEFAULT FALSE
+    );
+    """
+    try:
+        with DatabaseConnection(db_url) as cursor:
+            cursor.execute(sql)
+        logging.info("Tabla 'tasks' creada o ya existente.")
+    except Exception as e:
+        logging.error(f"Error al crear la tabla 'tasks': {e}")
+        raise
