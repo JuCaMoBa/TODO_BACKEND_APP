@@ -12,7 +12,12 @@ def create_tasks_tables(db_url: str):
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT,
-        completed BOOLEAN DEFAULT FALSE
+        completed BOOLEAN DEFAULT FALSE,
+        user_id INTEGER NOT NULL,
+        CONSTRAINT fk_user
+            FOREIGN KEY(user_id)
+            REFERENCES users(id)
+            ON DELETE CASCADE
     );
     """
     try:
