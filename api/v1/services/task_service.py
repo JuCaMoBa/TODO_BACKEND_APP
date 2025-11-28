@@ -35,7 +35,7 @@ class TaskService:
                 task_id=task_id,
                 title=task_update.title,
                 description=task_update.description,
-                is_completed=task_update.is_completed,
+                completed=task_update.completed,
                 user_id=user_id
             )
             if not updated:
@@ -65,16 +65,16 @@ class TaskService:
             logging.error(f"Error en el servicio al eliminar la tarea: {e}")
             raise HTTPException(status_code=500, detail="Error interno al eliminar la tarea.")
 
-    def get_task(self, task_id: int, user_id: int):
+    def get_tasks(self, user_id: int):
         """Obtiene una tarea por su ID."""
         try:
             task = self.task_repository.get_task_by_user_id(
                 user_id=user_id
             )
             if not task:
-                logging.warning(f"Tarea con ID: {task_id} no encontrada.")
+                logging.warning(f"Tareas para el usuario con ID: {user_id} no encontrada.")
                 raise HTTPException(status_code=404, detail="Tarea no encontrada.")
-            logging.info(f"Tarea con ID: {task_id} obtenida exitosamente.")
+            logging.info(f"Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
             return task
         except HTTPException:
             raise
