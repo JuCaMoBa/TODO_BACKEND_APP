@@ -31,3 +31,13 @@ class UserController:
             raise http_exc
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    def login_user(self, user_login_data):
+        """Inicia sesion de un usuario."""
+        try:
+            user = self.user_service.login_user(user_login_data)
+            return user
+        except HTTPException as http_exc:
+            raise http_exc
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
