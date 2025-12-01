@@ -4,3 +4,4 @@ uvicorn~=0.35.0
 psycopg2-binary==2.9.11
 bcrypt==5.0.0
 pydantic[email]
+PyJWT==2.10.1
