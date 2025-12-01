@@ -6,6 +6,8 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 
+from api.v1.schemas.auth.auth_token import TokenData
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Genera un token de acceso JWT."""
@@ -24,7 +26,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 
-def verify_access_token(token: str) -> dict:
+def verify_access_token(token: str):
     """Verifica y decodifica un token de acceso JWT."""
     try:
         payload = jwt.decode(token, os.getenv("SECRETE_KEY"), algorithms=[os.getenv("ALGORITHM")])
@@ -32,4 +34,4 @@ def verify_access_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return payload
+    return TokenData(**payload)
