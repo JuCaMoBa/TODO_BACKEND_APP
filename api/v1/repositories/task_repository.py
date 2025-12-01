@@ -3,6 +3,8 @@
 from api.v1.database.connection import DatabaseConnection
 import logging
 
+from core.global_config.exceptions.exceptions import RepositoryConnectionError
+
 
 class TaskRepository:
     """Repositorio para la gestion de tareas en la base de datos."""
@@ -25,7 +27,7 @@ class TaskRepository:
             return task_id
         except Exception as e:
             logging.error(f"Error al crear la tarea: {e}")
-            raise
+            raise RepositoryConnectionError("No se pudo crear la tarea en la base de datos.") from e
 
     def update_task(self, task_id: int, title: str, description: str, completed: bool, user_id: int):
         """Actualiza el estado de completitud de una tarea."""
@@ -50,7 +52,7 @@ class TaskRepository:
             return updated_task_id
         except Exception as e:
             logging.error(f"Error al actualizar la tarea: {e}")
-            raise
+            raise RepositoryConnectionError("No se pudo actualizar la tarea en la base de datos.") from e
 
     def delete_task(self, task_id: int, user_id: int):
         """Elimina una tarea de la base de datos."""
@@ -72,7 +74,7 @@ class TaskRepository:
             return deleted_task_id
         except Exception as e:
             logging.error(f"Error al eliminar la tarea: {e}")
-            raise
+            raise RepositoryConnectionError("No se pudo eliminar la tarea en la base de datos.") from e
 
     def get_task_by_user_id(self, user_id: int):
         """Obtiene todas las tareas asociadas a un usuario."""
@@ -103,4 +105,6 @@ class TaskRepository:
             return task_list
         except Exception as e:
             logging.error(f"Error al obtener las tareas del usuario: {e}")
-            raise
+            raise RepositoryConnectionError(
+                "No se pudieron obtener las tareas del usuario desde la base de datos."
+            ) from e
