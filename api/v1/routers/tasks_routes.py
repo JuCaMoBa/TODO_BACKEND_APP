@@ -6,7 +6,7 @@ from api.v1.schemas.tasks.task_create import TaskCreate
 from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.schemas.tasks.task_update import TaskUpdate
 
-router = APIRouter(prefix="/tasks", tags=["Tasks"])
+router = APIRouter(tags=["Tasks"])
 
 
 def get_tasks_controller():
@@ -15,8 +15,8 @@ def get_tasks_controller():
 
 @router.post("/create", response_model=TaskMessageResponse)
 def create_task(
-    task_data: TaskCreate,
     user_id: int,
+    task_data: TaskCreate,
     controller: TaskController = Depends(get_tasks_controller)
 ):
     return controller.create_task(task_data, user_id)
