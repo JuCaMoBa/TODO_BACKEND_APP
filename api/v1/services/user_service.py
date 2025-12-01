@@ -7,6 +7,7 @@ from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
 import logging
 from core.global_config.exceptions.exceptions import RepositoryConnectionError
+from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
 
 
@@ -134,9 +135,22 @@ class UserService:
 
             logging.info(
                 f"Usuario {user_login_data.email_or_username} ha iniciado sesion exitosamente")
+
+            token = create_access_token(
+                data={
+                    "sub": user["username"],
+                    "email": user["email"],
+                    "user_id": user["id"],
+                    "is_active": user["is_active"]
+                }
+            )
             return UserMessageResponse(
                 success=True,
-                data=user["id"],
+                data={
+                    "user_id": user["id"],
+                    "access_token": token,
+                    "token_type": "bearer"
+                },
                 message="Inicio de sesion exitoso.",
                 status=200
             )
