@@ -2,16 +2,18 @@
 
 from api.v1.repositories.task_repository import TaskRepository
 from api.v1.schemas.tasks.task_create import TaskCreate
+from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.schemas.tasks.task_update import TaskUpdate
 import logging
-from fastapi import HTTPException
+
+from core.global_config.exceptions.exceptions import RepositoryConnectionError
 
 
 class TaskService:
     """Servicio para la gestion de tareas."""
 
-    def __init__(self):
-        self.task_repository = TaskRepository()
+    def __init__(self, db_url: str):
+        self.task_repository = TaskRepository(db_url)
 
     def create_task(self, task_create: TaskCreate, user_id: int):
         """Crea una nueva tarea."""
@@ -19,14 +21,34 @@ class TaskService:
             task_id = self.task_repository.create_task(
                 title=task_create.title,
                 description=task_create.description,
-                is_completed=task_create.is_completed,
+                completed=task_create.completed,
                 user_id=user_id
             )
             logging.info(f"Tarea creada exitosamente con ID: {task_id}")
-            return task_id
+            return TaskMessageResponse(
+                success=True,
+                data={
+                    "task_id": task_id
+                },
+                message="Tarea creada exitosamente.",
+                status=201
+            )
+        except RepositoryConnectionError as repo_exc:
+            logging.error(f"[service] Error en la base de datos al crear la tarea: {repo_exc}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message=str(repo_exc),
+                status=500
+            )
         except Exception as e:
-            logging.error(f"Error en el servicio al crear la tarea: {e}")
-            raise HTTPException(status_code=500, detail="Error interno al crear la tarea.")
+            logging.error(f"[service] Error en el servicio al crear la tarea: {e}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message="Error interno al crear la tarea.",
+                status=500
+            )
 
     def update_task(self, task_id: int, task_update: TaskUpdate, user_id: int):
         """Actualiza una tarea existente."""
@@ -40,13 +62,37 @@ class TaskService:
             )
             if not updated:
                 logging.warning(f"Tarea con ID: {task_id} no encontrada para actualizar.")
-                raise HTTPException(status_code=404, detail="Tarea no encontrada.")
+                return TaskMessageResponse(
+                    success=False,
+                    data=None,
+                    message="Tarea no encontrada.",
+                    status=404
+                )
             logging.info(f"Tarea con ID: {task_id} actualizada exitosamente.")
-        except HTTPException:
-            raise
+            return TaskMessageResponse(
+                success=True,
+                data={
+                    "task_id": task_id
+                },
+                message="Tarea actualizada exitosamente.",
+                status=200
+            )
+        except RepositoryConnectionError as repo_exc:
+            logging.error(f"[service] Error en la base de datos al actualizar la tarea: {repo_exc}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message=str(repo_exc),
+                status=500
+            )
         except Exception as e:
-            logging.error(f"Error en el servicio al actualizar la tarea: {e}")
-            raise HTTPException(status_code=500, detail="Error interno al actualizar la tarea.")
+            logging.error(f"[service] Error en el servicio al actualizar la tarea: {e}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message="Error interno al actualizar la tarea.",
+                status=500
+            )
 
     def delete_task(self, task_id: int, user_id: int):
         """Elimina una tarea existente."""
@@ -57,13 +103,37 @@ class TaskService:
             )
             if not deleted:
                 logging.warning(f"Tarea con ID: {task_id} no encontrada para eliminar.")
-                raise HTTPException(status_code=404, detail="Tarea no encontrada.")
+                return TaskMessageResponse(
+                    success=False,
+                    data=None,
+                    message="Tarea no encontrada.",
+                    status=404
+                )
             logging.info(f"Tarea con ID: {task_id} eliminada exitosamente.")
-        except HTTPException:
-            raise
+            return TaskMessageResponse(
+                success=True,
+                data={
+                    "task_id": task_id
+                },
+                message="Tarea eliminada exitosamente.",
+                status=200
+            )
+        except RepositoryConnectionError as repo_exc:
+            logging.error(f"[service] Error en la base de datos al eliminar la tarea: {repo_exc}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message=str(repo_exc),
+                status=500
+            )
         except Exception as e:
-            logging.error(f"Error en el servicio al eliminar la tarea: {e}")
-            raise HTTPException(status_code=500, detail="Error interno al eliminar la tarea.")
+            logging.error(f"[service] Error en el servicio al eliminar la tarea: {e}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message="Error interno al eliminar la tarea.",
+                status=500
+            )
 
     def get_tasks(self, user_id: int):
         """Obtiene una tarea por su ID."""
@@ -73,11 +143,32 @@ class TaskService:
             )
             if not task:
                 logging.warning(f"Tareas para el usuario con ID: {user_id} no encontrada.")
-                raise HTTPException(status_code=404, detail="Tarea no encontrada.")
+                return TaskMessageResponse(
+                    success=False,
+                    data=None,
+                    message="Tareas no encontradas.",
+                    status=404
+                )
             logging.info(f"Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
-            return task
-        except HTTPException:
-            raise
+            return TaskMessageResponse(
+                success=True,
+                data=task,
+                message="Tareas obtenidas exitosamente.",
+                status=200
+            )
+        except RepositoryConnectionError as repo_exc:
+            logging.error(f"[service] Error en la base de datos al obtener la tarea: {repo_exc}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message=str(repo_exc),
+                status=500
+            )
         except Exception as e:
-            logging.error(f"Error en el servicio al obtener la tarea: {e}")
-            raise HTTPException(status_code=500, detail="Error interno al obtener la tarea.")
+            logging.error(f"[service] Error en el servicio al obtener la tarea: {e}")
+            return TaskMessageResponse(
+                success=False,
+                data=None,
+                message="Error interno al obtener la tarea.",
+                status=500
+            )
