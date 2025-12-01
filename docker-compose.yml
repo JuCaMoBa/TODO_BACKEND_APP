@@ -7,6 +7,8 @@ services:
       - basedatos
     environment:
       DB_URL: ${DB_URL}
+      SECRETE_KEY: ${SECRETE_KEY}
+      ALGORITHM: ${ALGORITHM}
     ports:
       - "5000:5000"
     command: ["python", "main.py"]
