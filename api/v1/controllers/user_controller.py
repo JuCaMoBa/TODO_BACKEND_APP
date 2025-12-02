@@ -17,9 +17,9 @@ class UserController:
         """Registra un nuevo usuario."""
         return self.user_service.create_user(user_create)
 
-    def update_user_status(self, update_data: UserUpdate):
+    def update_user_status(self, user_id: int, update_data: UserUpdate):
         """Actualiza el estado activo de un usuario."""
-        updated_user = self.user_service.update_user_status(update_data)
+        updated_user = self.user_service.update_user_status(user_id, update_data)
         return updated_user
 
     def login_user(self, user_login_data: UserLogin):
