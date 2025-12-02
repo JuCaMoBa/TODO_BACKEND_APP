@@ -3,6 +3,7 @@
 import os
 from typing import Optional
 import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 
@@ -30,8 +31,17 @@ def verify_access_token(token: str):
     """Verifica y decodifica un token de acceso JWT."""
     try:
         payload = jwt.decode(token, os.getenv("SECRETE_KEY"), algorithms=[os.getenv("ALGORITHM")])
-    except jwt.ExpiredSignatureError:
+        username = payload.get("sub")
+        email = payload.get("email")
+        user_id = payload.get("user_id")
+        is_active = payload.get("is_active")
+    except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
+    except InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return TokenData(**payload)
+    return TokenData(
+        username=username,
+        email=email,
+        user_id=user_id,
+        is_active=is_active
+    )
