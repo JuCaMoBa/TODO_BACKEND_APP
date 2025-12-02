@@ -66,15 +66,15 @@ class UserService:
                 status=500
             )
 
-    def update_user_status(self, user_update: UserUpdate):
+    def update_user_status(self, user_id: int, user_update: UserUpdate):
         """Actualiza el estado activo de un usuario."""
         try:
             updated_user_id = self.user_repository.user_update_status(
-                user_id=user_update.user_id,
+                user_id=user_id,
                 is_active=user_update.is_active
             )
             if updated_user_id is None:
-                logging.warning(f"[Service] Usuario con ID {user_update.user_id} no encontrado para actualizar.")
+                logging.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
                 return UserMessageResponse(
                     success=False,
                     data=None,
@@ -82,7 +82,7 @@ class UserService:
                     status=404
                 )
 
-            logging.info(f"[Service] Estado del usuario con ID {user_update.user_id} actualizado exitosamente")
+            logging.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
 
             return UserMessageResponse(
                 success=True,
