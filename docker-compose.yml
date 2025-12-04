@@ -11,6 +11,8 @@ services:
       ALGORITHM: ${ALGORITHM}
     ports:
       - "5000:5000"
+    volumes:
+      - ./:/app
     command: ["python", "main.py"]
 
   basedatos:
