@@ -8,12 +8,9 @@ from api.v1.schemas.users.user_create import UserCreate
 from api.v1.schemas.users.user_login import UserLogin
 from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
+from api.v1.dependency.users.user_dependencies import get_user_controller
 
 router = APIRouter(tags=["Users"])
-
-
-def get_user_controller():
-    return UserController()
 
 
 @router.post("/register", response_model=UserMessageResponse)

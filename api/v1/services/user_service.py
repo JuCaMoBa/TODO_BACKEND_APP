@@ -16,8 +16,8 @@ logger = logging.getLogger("app")
 class UserService:
     """Servicio para la gestion de usuarios."""
 
-    def __init__(self, db_url: str):
-        self.user_repository = UserRepository(db_url)
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
     def create_user(self, user_create: UserCreate):
         """Crea un nuevo usuario."""
