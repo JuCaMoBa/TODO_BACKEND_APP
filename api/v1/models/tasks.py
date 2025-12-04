@@ -4,6 +4,9 @@ from api.v1.database.connection import DatabaseConnection
 import logging
 
 
+logger = logging.getLogger("app")
+
+
 def create_tasks_tables(db_url: str):
     """Crea las tablas en la base de datos si no existen para la gestion de tareas."""
 
@@ -23,7 +26,7 @@ def create_tasks_tables(db_url: str):
     try:
         with DatabaseConnection(db_url) as cursor:
             cursor.execute(sql)
-        logging.info("Tabla 'tasks' creada o ya existente.")
+        logger.info("Tabla 'tasks' creada o ya existente.")
     except Exception as e:
-        logging.error(f"Error al crear la tabla 'tasks': {e}")
+        logger.error(f"Error al crear la tabla 'tasks': {e}")
         raise

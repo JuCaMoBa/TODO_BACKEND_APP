@@ -8,6 +8,8 @@ import logging
 
 from core.global_config.exceptions.exceptions import RepositoryConnectionError
 
+logger = logging.getLogger("app")
+
 
 class TaskService:
     """Servicio para la gestion de tareas."""
@@ -24,7 +26,7 @@ class TaskService:
                 completed=task_create.completed,
                 user_id=user_id
             )
-            logging.info(f"Tarea creada exitosamente con ID: {task_id}")
+            logger.info(f"[Service] Tarea creada exitosamente con ID: {task_id}")
             return TaskMessageResponse(
                 success=True,
                 data={
@@ -34,7 +36,7 @@ class TaskService:
                 status=201
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[service] Error en la base de datos al crear la tarea: {repo_exc}")
+            logger.error(f"[service] Error en la base de datos al crear la tarea: {repo_exc}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -42,7 +44,7 @@ class TaskService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[service] Error en el servicio al crear la tarea: {e}")
+            logger.error(f"[service] Error en el servicio al crear la tarea: {e}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -61,14 +63,14 @@ class TaskService:
                 user_id=user_id
             )
             if not updated:
-                logging.warning(f"Tarea con ID: {task_id} no encontrada para actualizar.")
+                logger.warning(f"[Service] Tarea con ID: {task_id} no encontrada para actualizar.")
                 return TaskMessageResponse(
                     success=False,
                     data=None,
                     message="Tarea no encontrada.",
                     status=404
                 )
-            logging.info(f"Tarea con ID: {task_id} actualizada exitosamente.")
+            logger.info(f"[Service] Tarea con ID: {task_id} actualizada exitosamente.")
             return TaskMessageResponse(
                 success=True,
                 data={
@@ -78,7 +80,7 @@ class TaskService:
                 status=200
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[service] Error en la base de datos al actualizar la tarea: {repo_exc}")
+            logger.error(f"[service] Error en la base de datos al actualizar la tarea: {repo_exc}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -86,7 +88,7 @@ class TaskService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[service] Error en el servicio al actualizar la tarea: {e}")
+            logger.error(f"[service] Error en el servicio al actualizar la tarea: {e}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -102,14 +104,14 @@ class TaskService:
                 user_id=user_id
             )
             if not deleted:
-                logging.warning(f"Tarea con ID: {task_id} no encontrada para eliminar.")
+                logger.warning(f"[Service] Tarea con ID: {task_id} no encontrada para eliminar.")
                 return TaskMessageResponse(
                     success=False,
                     data=None,
                     message="Tarea no encontrada.",
                     status=404
                 )
-            logging.info(f"Tarea con ID: {task_id} eliminada exitosamente.")
+            logger.info(f"[Service] Tarea con ID: {task_id} eliminada exitosamente.")
             return TaskMessageResponse(
                 success=True,
                 data={
@@ -119,7 +121,7 @@ class TaskService:
                 status=200
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[service] Error en la base de datos al eliminar la tarea: {repo_exc}")
+            logger.error(f"[service] Error en la base de datos al eliminar la tarea: {repo_exc}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -127,7 +129,7 @@ class TaskService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[service] Error en el servicio al eliminar la tarea: {e}")
+            logger.error(f"[service] Error en el servicio al eliminar la tarea: {e}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -142,14 +144,14 @@ class TaskService:
                 user_id=user_id
             )
             if not task:
-                logging.warning(f"Tareas para el usuario con ID: {user_id} no encontrada.")
+                logger.warning(f"[Service] Tareas para el usuario con ID: {user_id} no encontrada.")
                 return TaskMessageResponse(
                     success=False,
                     data=None,
                     message="Tareas no encontradas.",
                     status=404
                 )
-            logging.info(f"Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
+            logger.info(f"[Service] Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
             return TaskMessageResponse(
                 success=True,
                 data=task,
@@ -157,7 +159,7 @@ class TaskService:
                 status=200
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[service] Error en la base de datos al obtener la tarea: {repo_exc}")
+            logger.error(f"[service] Error en la base de datos al obtener la tarea: {repo_exc}")
             return TaskMessageResponse(
                 success=False,
                 data=None,
@@ -165,7 +167,7 @@ class TaskService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[service] Error en el servicio al obtener la tarea: {e}")
+            logger.error(f"[service] Error en el servicio al obtener la tarea: {e}")
             return TaskMessageResponse(
                 success=False,
                 data=None,

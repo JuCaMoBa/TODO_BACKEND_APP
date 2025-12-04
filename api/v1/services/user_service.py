@@ -10,6 +10,8 @@ from core.global_config.exceptions.exceptions import RepositoryConnectionError
 from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
 
+logger = logging.getLogger("app")
+
 
 class UserService:
     """Servicio para la gestion de usuarios."""
@@ -24,7 +26,7 @@ class UserService:
                 user_create.email
             )
             if existing_user:
-                logging.warning(
+                logger.warning(
                     f"[Service] El usuario con email {user_create.email} o username {user_create.username} ya existe."
                 )
                 return UserMessageResponse(
@@ -42,7 +44,7 @@ class UserService:
                 hashed_password=hashed_password,
                 is_active=user_create.is_active
             )
-            logging.info(f"[Service] Usuario creado exitosamente con ID: {user_id}")
+            logger.info(f"[Service] Usuario creado exitosamente con ID: {user_id}")
             return UserMessageResponse(
                 success=True,
                 data=user_id,
@@ -50,7 +52,7 @@ class UserService:
                 status=201
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[service] Error en la base de datos al crear el usuario: {repo_exc}")
+            logger.error(f"[service] Error en la base de datos al crear el usuario: {repo_exc}")
             return UserMessageResponse(
                 success=False,
                 data=None,
@@ -58,7 +60,7 @@ class UserService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[service] Error inesperado al crear el usuario: {e}")
+            logger.error(f"[service] Error inesperado al crear el usuario: {e}")
             return UserMessageResponse(
                 success=False,
                 data=None,
@@ -74,7 +76,7 @@ class UserService:
                 is_active=user_update.is_active
             )
             if updated_user_id is None:
-                logging.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
+                logger.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
                 return UserMessageResponse(
                     success=False,
                     data=None,
@@ -82,7 +84,7 @@ class UserService:
                     status=404
                 )
 
-            logging.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
+            logger.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
 
             return UserMessageResponse(
                 success=True,
@@ -91,7 +93,7 @@ class UserService:
                 status=200
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[Service] Error la base de datos al actualizar el estado del usuario: {repo_exc}")
+            logger.error(f"[Service] Error la base de datos al actualizar el estado del usuario: {repo_exc}")
             return UserMessageResponse(
                 success=False,
                 data=None,
@@ -99,7 +101,7 @@ class UserService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[Service] Error inesperado al actualizar el estado del usuario: {e}")
+            logger.error(f"[Service] Error inesperado al actualizar el estado del usuario: {e}")
             return UserMessageResponse(
                 success=False,
                 data=None,
@@ -114,7 +116,7 @@ class UserService:
                 user_login_data.email_or_username
             )
             if not user:
-                logging.warning("[Service] Intento de inicio de sesion fallido - usuario no encontrado")
+                logger.warning("[Service] Intento de inicio de sesion fallido - usuario no encontrado")
                 return UserMessageResponse(
                     success=False,
                     data=None,
@@ -125,7 +127,7 @@ class UserService:
             is_password_valid = verify_password(user_login_data.password, user["hashed_password"])
 
             if not is_password_valid:
-                logging.warning("[Service] Intento de inicio de sesion fallido - credenciales invalidas")
+                logger.warning("[Service] Intento de inicio de sesion fallido - credenciales invalidas")
                 return UserMessageResponse(
                     success=False,
                     data=None,
@@ -133,8 +135,8 @@ class UserService:
                     status=401
                 )
 
-            logging.info(
-                f"Usuario {user_login_data.email_or_username} ha iniciado sesion exitosamente")
+            logger.info(
+                f"[Service] Usuario {user_login_data.email_or_username} ha iniciado sesion exitosamente")
 
             token = create_access_token(
                 data={
@@ -155,7 +157,7 @@ class UserService:
                 status=200
             )
         except RepositoryConnectionError as repo_exc:
-            logging.error(f"[Service] Error en la base de datos al iniciar sesion: {repo_exc}")
+            logger.error(f"[Service] Error en la base de datos al iniciar sesion: {repo_exc}")
             return UserMessageResponse(
                 success=False,
                 data=None,
@@ -163,7 +165,7 @@ class UserService:
                 status=500
             )
         except Exception as e:
-            logging.error(f"[Service] Error inesperado al iniciar sesion: {e}")
+            logger.error(f"[Service] Error inesperado al iniciar sesion: {e}")
             return UserMessageResponse(
                 success=False,
                 data=None,

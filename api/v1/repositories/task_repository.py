@@ -6,6 +6,9 @@ import logging
 from core.global_config.exceptions.exceptions import RepositoryConnectionError
 
 
+logger = logging.getLogger("app")
+
+
 class TaskRepository:
     """Repositorio para la gestion de tareas en la base de datos."""
 
@@ -23,10 +26,10 @@ class TaskRepository:
             with DatabaseConnection(self.db_url) as cursor:
                 cursor.execute(sql, (title, description, completed, user_id))
                 task_id = cursor.fetchone()[0]
-            logging.info(f"Tarea creada exitósamente con ID: {task_id}")
+            logger.info(f"[Repository] Tarea creada exitósamente con ID: {task_id}")
             return task_id
         except Exception as e:
-            logging.error(f"Error al crear la tarea: {e}")
+            logger.error(f"[Repository] Error al crear la tarea: {e}")
             raise RepositoryConnectionError("No se pudo crear la tarea en la base de datos.") from e
 
     def update_task(self, task_id: int, title: str, description: str, completed: bool, user_id: int):
@@ -45,13 +48,13 @@ class TaskRepository:
                 result = cursor.fetchone()
 
             if result is None:
-                logging.warning(f"No se encontró la tarea {task_id} para el usuario {user_id}")
+                logger.warning(f"[Repository] No se encontró la tarea {task_id} para el usuario {user_id}")
                 return None
             updated_task_id = result[0]
-            logging.info(f"Tarea {task_id} actualizada exitosamente por el usuario {user_id}")
+            logger.info(f"[Repository] Tarea {task_id} actualizada exitosamente por el usuario {user_id}")
             return updated_task_id
         except Exception as e:
-            logging.error(f"Error al actualizar la tarea: {e}")
+            logger.error(f"[Repository] Error al actualizar la tarea: {e}")
             raise RepositoryConnectionError("No se pudo actualizar la tarea en la base de datos.") from e
 
     def delete_task(self, task_id: int, user_id: int):
@@ -67,13 +70,13 @@ class TaskRepository:
                 result = cursor.fetchone()
 
             if result is None:
-                logging.warning(f"No se encontró la tarea {task_id} para el usuario {user_id}")
+                logger.warning(f"[Repository] No se encontró la tarea {task_id} para el usuario {user_id}")
                 return None
             deleted_task_id = result[0]
-            logging.info(f"Tarea {task_id} eliminada exitosamente por el usuario {user_id}")
+            logger.info(f"[Repository] Tarea {task_id} eliminada exitosamente por el usuario {user_id}")
             return deleted_task_id
         except Exception as e:
-            logging.error(f"Error al eliminar la tarea: {e}")
+            logger.error(f"[Repository] Error al eliminar la tarea: {e}")
             raise RepositoryConnectionError("No se pudo eliminar la tarea en la base de datos.") from e
 
     def get_task_by_user_id(self, user_id: int):
@@ -89,7 +92,7 @@ class TaskRepository:
                 tasks = cursor.fetchall()
 
             if not tasks:
-                logging.warning(f"No se encontraron tareas para el usuario con ID: {user_id}")
+                logger.warning(f"[Repository] No se encontraron tareas para el usuario con ID: {user_id}")
                 return []
             task_list = [
                 {
@@ -101,10 +104,10 @@ class TaskRepository:
                 }
                 for row in tasks
             ]
-            logging.info(f"{len(task_list)} tareas obtenidas para el usuario {user_id}")
+            logger.info(f"[Repository] {len(task_list)} tareas obtenidas para el usuario {user_id}")
             return task_list
         except Exception as e:
-            logging.error(f"Error al obtener las tareas del usuario: {e}")
+            logger.error(f"[Repository] Error al obtener las tareas del usuario: {e}")
             raise RepositoryConnectionError(
                 "No se pudieron obtener las tareas del usuario desde la base de datos."
             ) from e

@@ -5,6 +5,8 @@ import logging
 
 from core.global_config.exceptions.exceptions import RepositoryConnectionError
 
+logger = logging.getLogger("app")
+
 
 class UserRepository:
     """Repositorio para la gestion de usuarios en la base de datos."""
@@ -23,10 +25,10 @@ class UserRepository:
             with DatabaseConnection(self.db_url) as cursor:
                 cursor.execute(sql, (username, email, hashed_password, is_active))
                 user_id = cursor.fetchone()[0]
-            logging.info(f"Usuario creado exitósamente con ID: {user_id}")
+            logger.info(f"[Repository] Usuario creado exitósamente con ID: {user_id}")
             return user_id
         except Exception as e:
-            logging.error(f"Error al crear el usuario: {e}")
+            logger.error(f"[Repository] Error al crear el usuario: {e}")
             raise RepositoryConnectionError("No se pudo crear el usuario en la base de datos.") from e
 
     def user_update_status(self, user_id: int, is_active: bool):
@@ -43,13 +45,13 @@ class UserRepository:
                 result = cursor.fetchone()
 
             if result is None:
-                logging.warning(f"No se encontró el usuario con ID: {user_id}")
+                logging.warning(f"[Repository] No se encontró el usuario con ID: {user_id}")
                 return None
             updated_user_id = result[0]
-            logging.info(f"Estado del usuario con ID {user_id} actualizado a {is_active}")
+            logger.info(f"[Repository] Estado del usuario con ID {user_id} actualizado a {is_active}")
             return updated_user_id
         except Exception as e:
-            logging.error(f"Error al actualizar el estado del usuario: {e}")
+            logger.error(f"[Repository] Error al actualizar el estado del usuario: {e}")
             raise RepositoryConnectionError("No se pudo actualizar el estado del usuario en la base de datos.") from e
 
     def get_user_by_email_or_username(self, identifier: str):
@@ -65,7 +67,7 @@ class UserRepository:
                 user = cursor.fetchone()
 
             if user is None:
-                logging.info(f"No se encontró el usuario {identifier}")
+                logger.info(f"[Repository] No se encontró el usuario {identifier}")
                 return None
             user_data = {
                 "id": user[0],
@@ -74,8 +76,8 @@ class UserRepository:
                 "hashed_password": user[3],
                 "is_active": user[4]
             }
-            logging.info(f"Usuario encontrado {identifier}")
+            logger.info(f"[Repository] Usuario encontrado {identifier}")
             return user_data
         except Exception as e:
-            logging.error(f"Error al obtener el usuario: {e}")
+            logger.error(f"[Repository] Error al obtener el usuario: {e}")
             raise RepositoryConnectionError("No se pudo obtener el usuario en la base de datos.") from e
