@@ -27,7 +27,7 @@ class UserService:
             )
             if existing_user:
                 logger.warning(
-                    f"[Service] El usuario con email {user_create.email} o username {user_create.username} ya existe."
+                    f"[Service] El usuario {user_create.email}  ya existe."
                 )
                 return UserMessageResponse(
                     success=False,
