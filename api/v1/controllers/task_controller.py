@@ -1,6 +1,5 @@
 """Modulo que genera los controllers para la gestion de tareas."""
 
-import os
 from api.v1.services.task_service import TaskService
 from api.v1.schemas.tasks.task_create import TaskCreate
 from api.v1.schemas.tasks.task_update import TaskUpdate
@@ -9,8 +8,8 @@ from api.v1.schemas.tasks.task_update import TaskUpdate
 class TaskController:
     """Controller para la gestion de tareas."""
 
-    def __init__(self):
-        self.task_service = TaskService(os.getenv("DB_URL"))
+    def __init__(self, task_service: TaskService):
+        self.task_service = task_service
 
     def create_task(self, task_create: TaskCreate, user_id: int):
         """Crea una nueva tarea."""

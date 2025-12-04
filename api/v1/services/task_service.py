@@ -14,8 +14,8 @@ logger = logging.getLogger("app")
 class TaskService:
     """Servicio para la gestion de tareas."""
 
-    def __init__(self, db_url: str):
-        self.task_repository = TaskRepository(db_url)
+    def __init__(self, task_repository: TaskRepository):
+        self.task_repository = task_repository
 
     def create_task(self, task_create: TaskCreate, user_id: int):
         """Crea una nueva tarea."""
