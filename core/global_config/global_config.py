@@ -42,5 +42,4 @@ def get_deployment_enviroment():
     """Funcion que obtiene el entorno de despliegue"""
     enviroments = {"PROD": ProdConfig, "DEV": DevConfig, "TEST": TestConfig, "STAGE": StageConfig}
     selected_env = enviroments[get_api_config_file().get('environment', 'PROD')]
-    print(selected_env)
     return selected_env
