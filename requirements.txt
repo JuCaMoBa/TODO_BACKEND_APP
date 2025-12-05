@@ -6,3 +6,4 @@ bcrypt==5.0.0
 pydantic[email]
 PyJWT==2.10.1
 pydantic[settings]
+python-multipart==0.0.20
