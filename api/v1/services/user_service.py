@@ -1,11 +1,11 @@
 """ Modulo que genera el servicio para los usuarios """
 
+import logging
+from fastapi.security import OAuth2PasswordRequestForm
 from api.v1.repositories.user_repository import UserRepository
 from api.v1.schemas.users.user_create import UserCreate
-from api.v1.schemas.users.user_login import UserLogin
 from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
-import logging
 from core.global_config.exceptions.exceptions import RepositoryConnectionError
 from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
@@ -109,11 +109,11 @@ class UserService:
                 status=500
             )
 
-    def login_user(self, user_login_data: UserLogin):
+    def login_user(self, user_login_data: OAuth2PasswordRequestForm):
         """Inicia sesion de un usuario."""
         try:
             user = self.user_repository.get_user_by_email_or_username(
-                user_login_data.email_or_username
+                user_login_data.username
             )
             if not user:
                 logger.warning("[Service] Intento de inicio de sesion fallido - usuario no encontrado")
@@ -136,7 +136,7 @@ class UserService:
                 )
 
             logger.info(
-                f"[Service] Usuario {user_login_data.email_or_username} ha iniciado sesion exitosamente")
+                f"[Service] Usuario {user_login_data.username} ha iniciado sesion exitosamente")
 
             token = create_access_token(
                 data={

@@ -1,6 +1,6 @@
 """Modulo que genera los controllers para la gestion de usuarios."""
 
-from api.v1.schemas.users.user_login import UserLogin
+from fastapi.security import OAuth2PasswordRequestForm
 from api.v1.services.user_service import UserService
 from api.v1.schemas.users.user_create import UserCreate
 from api.v1.schemas.users.user_update import UserUpdate
@@ -21,7 +21,7 @@ class UserController:
         updated_user = self.user_service.update_user_status(user_id, update_data)
         return updated_user
 
-    def login_user(self, user_login_data: UserLogin):
+    def login_user(self, user_login_data: OAuth2PasswordRequestForm):
         """Inicia sesion de un usuario."""
         user = self.user_service.login_user(user_login_data)
         return user

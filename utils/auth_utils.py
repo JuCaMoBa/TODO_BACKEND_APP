@@ -7,7 +7,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 
-from api.v1.schemas.auth.auth_token import TokenData
+from api.v1.schemas.auth.auth_token import UserAuthData
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -39,7 +39,7 @@ def verify_access_token(token: str):
         raise HTTPException(status_code=401, detail="Token has expired")
     except InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return TokenData(
+    return UserAuthData(
         username=username,
         email=email,
         user_id=user_id,

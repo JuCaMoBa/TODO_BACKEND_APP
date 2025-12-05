@@ -9,7 +9,7 @@ from utils.auth_utils import verify_access_token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 
-def current_user_dependency(token: Annotated[str, Depends(oauth2_scheme)]):
+def current_user_authenticated(token: Annotated[str, Depends(oauth2_scheme)]):
     """Dependencia para obtener el usuario actual."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

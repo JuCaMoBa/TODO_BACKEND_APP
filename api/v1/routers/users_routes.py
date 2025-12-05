@@ -1,11 +1,12 @@
 """Modulo que genera las rutas para los usuarios."""
 
+from typing_extensions import Annotated
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from api.v1.controllers.user_controller import UserController
-from api.v1.dependency.dependencies import current_user_dependency
-from api.v1.schemas.auth.auth_token import TokenData
+from api.v1.dependency.dependencies import current_user_authenticated
+from api.v1.schemas.auth.auth_token import UserAuthData
 from api.v1.schemas.users.user_create import UserCreate
-from api.v1.schemas.users.user_login import UserLogin
 from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
 from api.v1.dependency.users.user_dependencies import get_user_controller
@@ -25,7 +26,7 @@ def register_user(
 @router.put("/update-status", response_model=UserMessageResponse)
 def update_status_user(
     update_data: UserUpdate,
-    current_user: TokenData = Depends(current_user_dependency),
+    current_user: UserAuthData = Depends(current_user_authenticated),
     controller: UserController = Depends(get_user_controller)
 ):
     user_id = current_user.user_id
@@ -33,9 +34,9 @@ def update_status_user(
     return data
 
 
-@router.post("/login", response_model=UserMessageResponse)
+@router.post("/token", response_model=UserMessageResponse)
 def login_user(
-    user_login_data: UserLogin,
+    user_login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     controller: UserController = Depends(get_user_controller)
 ):
     data = controller.login_user(user_login_data)

@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter, Depends
 from api.v1.controllers.task_controller import TaskController
-from api.v1.dependency.dependencies import current_user_dependency
-from api.v1.schemas.auth.auth_token import TokenData
+from api.v1.dependency.dependencies import current_user_authenticated
+from api.v1.schemas.auth.auth_token import UserAuthData
 from api.v1.schemas.tasks.task_create import TaskCreate
 from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.schemas.tasks.task_update import TaskUpdate
@@ -15,7 +15,7 @@ router = APIRouter(tags=["Tasks"])
 @router.post("/create", response_model=TaskMessageResponse)
 def create_task(
     task_data: TaskCreate,
-    current_user: TokenData = Depends(current_user_dependency),
+    current_user: UserAuthData = Depends(current_user_authenticated),
     controller: TaskController = Depends(get_task_controller)
 ):
     user_id = current_user.user_id
@@ -26,7 +26,7 @@ def create_task(
 def update_task(
     task_id: int,
     update_data: TaskUpdate,
-    current_user: TokenData = Depends(current_user_dependency),
+    current_user: UserAuthData = Depends(current_user_authenticated),
     controller: TaskController = Depends(get_task_controller)
 ):
     user_id = current_user.user_id
@@ -36,7 +36,7 @@ def update_task(
 @router.delete("/delete", response_model=TaskMessageResponse)
 def delete_task(
     task_id: int,
-    current_user: TokenData = Depends(current_user_dependency),
+    current_user: UserAuthData = Depends(current_user_authenticated),
     controller: TaskController = Depends(get_task_controller)
 ):
     user_id = current_user.user_id
@@ -45,7 +45,7 @@ def delete_task(
 
 @router.get("/get", response_model=TaskMessageResponse)
 def get_tasks(
-    current_user: TokenData = Depends(current_user_dependency),
+    current_user: UserAuthData = Depends(current_user_authenticated),
     controller: TaskController = Depends(get_task_controller)
 ):
     user_id = current_user.user_id
