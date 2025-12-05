@@ -3,10 +3,11 @@
 import logging
 from fastapi.security import OAuth2PasswordRequestForm
 from api.v1.repositories.user_repository import UserRepository
+from api.v1.schemas.auth.auth_token import Token
 from api.v1.schemas.users.user_create import UserCreate
 from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
-from core.global_config.exceptions.exceptions import RepositoryConnectionError
+from core.global_config.exceptions.exceptions import InvalidCredentialsError, RepositoryConnectionError
 from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
 
@@ -117,23 +118,13 @@ class UserService:
             )
             if not user:
                 logger.warning("[Service] Intento de inicio de sesion fallido - usuario no encontrado")
-                return UserMessageResponse(
-                    success=False,
-                    data=None,
-                    message="Credenciales invalidas.",
-                    status=401
-                )
+                raise InvalidCredentialsError("Intento de inicio de sesion fallido - credenciales invalidas")
 
             is_password_valid = verify_password(user_login_data.password, user["hashed_password"])
 
             if not is_password_valid:
                 logger.warning("[Service] Intento de inicio de sesion fallido - credenciales invalidas")
-                return UserMessageResponse(
-                    success=False,
-                    data=None,
-                    message="Credenciales invalidas.",
-                    status=401
-                )
+                raise InvalidCredentialsError("Intento de inicio de sesion fallido - credenciales invalidas")
 
             logger.info(
                 f"[Service] Usuario {user_login_data.username} ha iniciado sesion exitosamente")
@@ -146,29 +137,11 @@ class UserService:
                     "is_active": user["is_active"]
                 }
             )
-            return UserMessageResponse(
-                success=True,
-                data={
-                    "user_id": user["id"],
-                    "access_token": token,
-                    "token_type": "bearer"
-                },
-                message="Inicio de sesion exitoso.",
-                status=200
-            )
+            return Token(access_token=token, token_type="bearer")
+
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[Service] Error en la base de datos al iniciar sesion: {repo_exc}")
-            return UserMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[Service] Error inesperado al iniciar sesion: {e}")
-            return UserMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al iniciar sesion.",
-                status=500
-            )
+            raise

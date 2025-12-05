@@ -4,3 +4,8 @@
 class RepositoryConnectionError(Exception):
     """Excepcion lanzada cuando hay un error al conectar con la base de datos."""
     pass
+
+
+class InvalidCredentialsError(Exception):
+    """Excepción de dominio para credenciales inválidas."""
+    pass

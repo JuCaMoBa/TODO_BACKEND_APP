@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from api.v1.controllers.user_controller import UserController
 from api.v1.dependency.dependencies import current_user_authenticated
-from api.v1.schemas.auth.auth_token import UserAuthData
+from api.v1.schemas.auth.auth_token import Token, UserAuthData
 from api.v1.schemas.users.user_create import UserCreate
 from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
@@ -34,10 +34,10 @@ def update_status_user(
     return data
 
 
-@router.post("/token", response_model=UserMessageResponse)
+@router.post("/token", response_model=Token)
 def login_user(
     user_login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     controller: UserController = Depends(get_user_controller)
 ):
-    data = controller.login_user(user_login_data)
-    return data
+    token_data = controller.login_user(user_login_data)
+    return token_data
