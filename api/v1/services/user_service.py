@@ -7,7 +7,11 @@ from api.v1.schemas.auth.auth_token import Token
 from api.v1.schemas.users.user_create import UserCreate
 from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
-from core.global_config.exceptions.exceptions import InvalidCredentialsError, RepositoryConnectionError
+from core.global_config.exceptions.exceptions import (
+    InvalidCredentialsError,
+    RepositoryConnectionError,
+    UserDataNotFound
+)
 from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
 
@@ -78,37 +82,18 @@ class UserService:
             )
             if updated_user_id is None:
                 logger.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
-                return UserMessageResponse(
-                    success=False,
-                    data=None,
-                    message="Usuario no encontrado.",
-                    status=404
-                )
+                raise UserDataNotFound("No se pudo actualizar el usuario")
 
             logger.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
 
-            return UserMessageResponse(
-                success=True,
-                data=updated_user_id,
-                message="Estado del usuario actualizado exitosamente.",
-                status=200
-            )
+            return updated_user_id
+
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[Service] Error la base de datos al actualizar el estado del usuario: {repo_exc}")
-            return UserMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[Service] Error inesperado al actualizar el estado del usuario: {e}")
-            return UserMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al actualizar usuario.",
-                status=500
-            )
+            raise
 
     def login_user(self, user_login_data: OAuth2PasswordRequestForm):
         """Inicia sesion de un usuario."""

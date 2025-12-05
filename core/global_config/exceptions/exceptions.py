@@ -9,3 +9,8 @@ class RepositoryConnectionError(Exception):
 class InvalidCredentialsError(Exception):
     """Excepción de dominio para credenciales inválidas."""
     pass
+
+
+class UserDataNotFound(Exception):
+    """Excepción de dominio para errores de usuarios"""
+    pass
