@@ -5,12 +5,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from api.v1.repositories.user_repository import UserRepository
 from api.v1.schemas.auth.auth_token import Token
 from api.v1.schemas.users.user_create import UserCreate
-from api.v1.schemas.users.user_message_response import UserMessageResponse
 from api.v1.schemas.users.user_update import UserUpdate
 from core.global_config.exceptions.exceptions import (
     InvalidCredentialsError,
     RepositoryConnectionError,
-    UserDataNotFound
+    UserDataError
 )
 from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
@@ -34,12 +33,7 @@ class UserService:
                 logger.warning(
                     f"[Service] El usuario {user_create.email}  ya existe."
                 )
-                return UserMessageResponse(
-                    success=False,
-                    data=None,
-                    message="El usuario ya existe.",
-                    status=400
-                )
+                raise UserDataError("El usuario ya existe")
 
             hashed_password = hash_password(user_create.password)
 
@@ -50,28 +44,14 @@ class UserService:
                 is_active=user_create.is_active
             )
             logger.info(f"[Service] Usuario creado exitosamente con ID: {user_id}")
-            return UserMessageResponse(
-                success=True,
-                data=user_id,
-                message="Usuario creado exitosamente.",
-                status=201
-            )
+            return user_id
+
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[service] Error en la base de datos al crear el usuario: {repo_exc}")
-            return UserMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[service] Error inesperado al crear el usuario: {e}")
-            return UserMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al crear el usuario.",
-                status=500
-            )
+            raise
 
     def update_user_status(self, user_id: int, user_update: UserUpdate):
         """Actualiza el estado activo de un usuario."""
@@ -82,7 +62,7 @@ class UserService:
             )
             if updated_user_id is None:
                 logger.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
-                raise UserDataNotFound("No se pudo actualizar el usuario")
+                raise UserDataError("No se pudo actualizar el usuario")
 
             logger.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
 

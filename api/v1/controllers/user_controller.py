@@ -11,7 +11,7 @@ from api.v1.schemas.users.user_update import UserUpdate
 from core.global_config.exceptions.exceptions import (
     InvalidCredentialsError,
     RepositoryConnectionError,
-    UserDataNotFound
+    UserDataError
 )
 
 logger = logging.getLogger("app")
@@ -25,7 +25,32 @@ class UserController:
 
     def register_user(self, user_create: UserCreate):
         """Registra un nuevo usuario."""
-        return self.user_service.create_user(user_create)
+        try:
+            user_id = self.user_service.create_user(user_create)
+            return UserMessageResponse(
+                success=True,
+                data=user_id,
+                message="Usuario creado exitosamente.",
+                status=201
+            )
+        except UserDataError as e:
+            logger.error(f"[Controller] el usuario ya exite: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+        except RepositoryConnectionError as e:
+            logger.error(f"[Controller] Error de BD: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Servicio no disponible"
+            )
+        except Exception as e:
+            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error"
+            )
 
     def update_user_status(self, user_id: int, update_data: UserUpdate):
         """Actualiza el estado activo de un usuario."""
@@ -39,7 +64,7 @@ class UserController:
                 message=f"Usuario con ID {updated_user} actualizado con exito",
                 status=200
             )
-        except UserDataNotFound as e:
+        except UserDataError as e:
             logger.error(f"[Controller] No se pudo actualizar el usuario: {e}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

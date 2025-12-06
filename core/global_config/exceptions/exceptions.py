@@ -11,6 +11,6 @@ class InvalidCredentialsError(Exception):
     pass
 
 
-class UserDataNotFound(Exception):
+class UserDataError(Exception):
     """Excepción de dominio para errores de usuarios"""
     pass
