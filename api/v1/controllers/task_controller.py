@@ -1,8 +1,14 @@
 """Modulo que genera los controllers para la gestion de tareas."""
 
+import logging
+from fastapi import HTTPException, status
+from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.services.task_service import TaskService
 from api.v1.schemas.tasks.task_create import TaskCreate
 from api.v1.schemas.tasks.task_update import TaskUpdate
+from core.global_config.exceptions.exceptions import RepositoryConnectionError, UserDataError
+
+logger = logging.getLogger("app")
 
 
 class TaskController:
@@ -25,4 +31,29 @@ class TaskController:
 
     def get_tasks(self, user_id: int):
         """Obtiene una tarea por su ID."""
-        return self.task_service.get_tasks(user_id)
+        try:
+            tasks = self.task_service.get_tasks(user_id)
+            return TaskMessageResponse(
+                    success=True,
+                    data=tasks,
+                    message="Tareas obtenidas exitosamente.",
+                    status=200
+                )
+        except UserDataError as e:
+            logger.error(f"[controller] Tareas para el usuario con ID: {user_id} no encontrada.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        except RepositoryConnectionError as e:
+            logger.error(f"[Controller] Error de BD: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Servicio no disponible"
+            )
+        except Exception as e:
+            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error"
+            )

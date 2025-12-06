@@ -6,7 +6,7 @@ from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.schemas.tasks.task_update import TaskUpdate
 import logging
 
-from core.global_config.exceptions.exceptions import RepositoryConnectionError
+from core.global_config.exceptions.exceptions import RepositoryConnectionError, UserDataError
 
 logger = logging.getLogger("app")
 
@@ -145,32 +145,13 @@ class TaskService:
             )
             if not task:
                 logger.warning(f"[Service] Tareas para el usuario con ID: {user_id} no encontrada.")
-                return TaskMessageResponse(
-                    success=False,
-                    data=None,
-                    message="Tareas no encontradas.",
-                    status=404
-                )
+                raise UserDataError("Tareas no encontradas")
             logger.info(f"[Service] Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
-            return TaskMessageResponse(
-                success=True,
-                data=task,
-                message="Tareas obtenidas exitosamente.",
-                status=200
-            )
+            return task
+
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[service] Error en la base de datos al obtener la tarea: {repo_exc}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[service] Error en el servicio al obtener la tarea: {e}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al obtener la tarea.",
-                status=500
-            )
+            raise
