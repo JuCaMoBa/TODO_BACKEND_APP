@@ -99,43 +99,22 @@ class TaskService:
     def delete_task(self, task_id: int, user_id: int):
         """Elimina una tarea existente."""
         try:
-            deleted = self.task_repository.delete_task(
+            deleted_task_id = self.task_repository.delete_task(
                 task_id=task_id,
                 user_id=user_id
             )
-            if not deleted:
+            if not deleted_task_id:
                 logger.warning(f"[Service] Tarea con ID: {task_id} no encontrada para eliminar.")
-                return TaskMessageResponse(
-                    success=False,
-                    data=None,
-                    message="Tarea no encontrada.",
-                    status=404
-                )
-            logger.info(f"[Service] Tarea con ID: {task_id} eliminada exitosamente.")
-            return TaskMessageResponse(
-                success=True,
-                data={
-                    "task_id": task_id
-                },
-                message="Tarea eliminada exitosamente.",
-                status=200
-            )
+                raise ExceptionDataError("Tarea no encontrada para eliminar")
+            logger.info(f"[Service] Tarea con ID: {deleted_task_id} eliminada exitosamente.")
+            return deleted_task_id
+
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[service] Error en la base de datos al eliminar la tarea: {repo_exc}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[service] Error en el servicio al eliminar la tarea: {e}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al eliminar la tarea.",
-                status=500
-            )
+            raise
 
     def get_tasks(self, user_id: int):
         """Obtiene una tarea por su ID."""

@@ -73,7 +73,7 @@ class TaskRepository:
                 logger.warning(f"[Repository] No se encontró la tarea {task_id} para el usuario {user_id}")
                 return None
             deleted_task_id = result[0]
-            logger.info(f"[Repository] Tarea {task_id} eliminada exitosamente por el usuario {user_id}")
+            logger.info(f"[Repository] Tarea {deleted_task_id} eliminada exitosamente por el usuario {user_id}")
             return deleted_task_id
         except Exception as e:
             logger.error(f"[Repository] Error al eliminar la tarea: {e}")

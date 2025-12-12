@@ -27,7 +27,34 @@ class TaskController:
 
     def delete_task(self, task_id: int, user_id: int):
         """Elimina una tarea existente."""
-        return self.task_service.delete_task(task_id, user_id)
+        try:
+            deleted_task_id = self.task_service.delete_task(task_id, user_id)
+            return TaskMessageResponse(
+                        success=True,
+                        data={
+                            "task_id": deleted_task_id
+                        },
+                        message="Tarea eliminada exitosamente.",
+                        status=200
+                    )
+        except ExceptionDataError as e:
+            logger.error(f"[Controller] Tarea con ID: {task_id} no encontrada para eliminar.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        except RepositoryConnectionError as e:
+            logger.error(f"[Controller] Error de BD: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Servicio no disponible"
+            )
+        except Exception as e:
+            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error"
+            )
 
     def get_tasks(self, user_id: int):
         """Obtiene una tarea por su ID."""
