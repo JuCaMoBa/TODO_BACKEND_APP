@@ -2,7 +2,6 @@
 
 from api.v1.repositories.task_repository import TaskRepository
 from api.v1.schemas.tasks.task_create import TaskCreate
-from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.schemas.tasks.task_update import TaskUpdate
 import logging
 
@@ -26,31 +25,19 @@ class TaskService:
                 completed=task_create.completed,
                 user_id=user_id
             )
+            if not task_id:
+                logger.warning("[Service] No se pudo crear la tarea")
+                raise ExceptionDataError("No se pudo crear la tarea")
+
             logger.info(f"[Service] Tarea creada exitosamente con ID: {task_id}")
-            return TaskMessageResponse(
-                success=True,
-                data={
-                    "task_id": task_id
-                },
-                message="Tarea creada exitosamente.",
-                status=201
-            )
+            return task_id
+
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[service] Error en la base de datos al crear la tarea: {repo_exc}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[service] Error en el servicio al crear la tarea: {e}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al crear la tarea.",
-                status=500
-            )
+            raise
 
     def update_task(self, task_id: int, task_update: TaskUpdate, user_id: int):
         """Actualiza una tarea existente."""

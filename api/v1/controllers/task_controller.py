@@ -19,7 +19,34 @@ class TaskController:
 
     def create_task(self, task_create: TaskCreate, user_id: int):
         """Crea una nueva tarea."""
-        return self.task_service.create_task(task_create, user_id)
+        try:
+            task_id = self.task_service.create_task(task_create, user_id)
+            return TaskMessageResponse(
+                    success=True,
+                    data={
+                        "task_id": task_id
+                    },
+                    message="Tarea creada exitosamente.",
+                    status=201
+            )
+        except ExceptionDataError as e:
+            logger.error("[Controller] No se pudo crear la tarea")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=str(e)
+            )
+        except RepositoryConnectionError as e:
+            logger.error(f"[Controller] Error de BD: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Servicio no disponible"
+            )
+        except Exception as e:
+            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error"
+            )
 
     def update_task(self, task_id: int, update_data: TaskUpdate, user_id: int):
         """Actualiza una tarea existente."""
