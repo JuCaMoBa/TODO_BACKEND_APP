@@ -55,46 +55,25 @@ class TaskService:
     def update_task(self, task_id: int, task_update: TaskUpdate, user_id: int):
         """Actualiza una tarea existente."""
         try:
-            updated = self.task_repository.update_task(
+            updated_task_id = self.task_repository.update_task(
                 task_id=task_id,
                 title=task_update.title,
                 description=task_update.description,
                 completed=task_update.completed,
                 user_id=user_id
             )
-            if not updated:
+            if not updated_task_id:
                 logger.warning(f"[Service] Tarea con ID: {task_id} no encontrada para actualizar.")
-                return TaskMessageResponse(
-                    success=False,
-                    data=None,
-                    message="Tarea no encontrada.",
-                    status=404
-                )
-            logger.info(f"[Service] Tarea con ID: {task_id} actualizada exitosamente.")
-            return TaskMessageResponse(
-                success=True,
-                data={
-                    "task_id": task_id
-                },
-                message="Tarea actualizada exitosamente.",
-                status=200
-            )
+                raise ExceptionDataError("Tarea no encontrada para actualizar")
+
+            logger.info(f"[Service] Tarea con ID: {updated_task_id} actualizada exitosamente.")
+            return updated_task_id
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[service] Error en la base de datos al actualizar la tarea: {repo_exc}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message=str(repo_exc),
-                status=500
-            )
+            raise
         except Exception as e:
             logger.error(f"[service] Error en el servicio al actualizar la tarea: {e}")
-            return TaskMessageResponse(
-                success=False,
-                data=None,
-                message="Error interno al actualizar la tarea.",
-                status=500
-            )
+            raise
 
     def delete_task(self, task_id: int, user_id: int):
         """Elimina una tarea existente."""
