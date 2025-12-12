@@ -119,14 +119,14 @@ class TaskService:
     def get_tasks(self, user_id: int):
         """Obtiene una tarea por su ID."""
         try:
-            task = self.task_repository.get_task_by_user_id(
+            tasks = self.task_repository.get_task_by_user_id(
                 user_id=user_id
             )
-            if not task:
+            if not tasks:
                 logger.warning(f"[Service] Tareas para el usuario con ID: {user_id} no encontrada.")
                 raise ExceptionDataError("Tareas no encontradas")
             logger.info(f"[Service] Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
-            return task
+            return tasks
 
         except RepositoryConnectionError as repo_exc:
             logger.error(f"[service] Error en la base de datos al obtener la tarea: {repo_exc}")
