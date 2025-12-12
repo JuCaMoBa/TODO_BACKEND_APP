@@ -11,6 +11,6 @@ class InvalidCredentialsError(Exception):
     pass
 
 
-class UserDataError(Exception):
-    """Excepción de dominio para errores de usuarios"""
+class ExceptionDataError(Exception):
+    """Excepción de dominio para errores en obtener datos de user o tasks"""
     pass

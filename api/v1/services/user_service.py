@@ -9,7 +9,7 @@ from api.v1.schemas.users.user_update import UserUpdate
 from core.global_config.exceptions.exceptions import (
     InvalidCredentialsError,
     RepositoryConnectionError,
-    UserDataError
+    ExceptionDataError
 )
 from utils.auth_utils import create_access_token
 from utils.password_managment import hash_password, verify_password
@@ -33,7 +33,7 @@ class UserService:
                 logger.warning(
                     f"[Service] El usuario {user_create.email}  ya existe."
                 )
-                raise UserDataError("El usuario ya existe")
+                raise ExceptionDataError("El usuario ya existe")
 
             hashed_password = hash_password(user_create.password)
 
@@ -62,7 +62,7 @@ class UserService:
             )
             if updated_user_id is None:
                 logger.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
-                raise UserDataError("No se pudo actualizar el usuario")
+                raise ExceptionDataError("No se pudo actualizar el usuario")
 
             logger.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
 

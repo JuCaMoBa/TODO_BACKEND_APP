@@ -11,7 +11,7 @@ from api.v1.schemas.users.user_update import UserUpdate
 from core.global_config.exceptions.exceptions import (
     InvalidCredentialsError,
     RepositoryConnectionError,
-    UserDataError
+    ExceptionDataError
 )
 
 logger = logging.getLogger("app")
@@ -33,7 +33,7 @@ class UserController:
                 message="Usuario creado exitosamente.",
                 status=201
             )
-        except UserDataError as e:
+        except ExceptionDataError as e:
             logger.error(f"[Controller] el usuario ya exite: {e}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -64,7 +64,7 @@ class UserController:
                 message=f"Usuario con ID {updated_user} actualizado con exito",
                 status=200
             )
-        except UserDataError as e:
+        except ExceptionDataError as e:
             logger.error(f"[Controller] No se pudo actualizar el usuario: {e}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

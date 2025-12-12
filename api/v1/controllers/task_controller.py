@@ -6,7 +6,7 @@ from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.services.task_service import TaskService
 from api.v1.schemas.tasks.task_create import TaskCreate
 from api.v1.schemas.tasks.task_update import TaskUpdate
-from core.global_config.exceptions.exceptions import RepositoryConnectionError, UserDataError
+from core.global_config.exceptions.exceptions import RepositoryConnectionError, ExceptionDataError
 
 logger = logging.getLogger("app")
 
@@ -39,7 +39,7 @@ class TaskController:
                     message="Tareas obtenidas exitosamente.",
                     status=200
                 )
-        except UserDataError as e:
+        except ExceptionDataError as e:
             logger.error(f"[controller] Tareas para el usuario con ID: {user_id} no encontrada.")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

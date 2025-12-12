@@ -6,7 +6,7 @@ from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.schemas.tasks.task_update import TaskUpdate
 import logging
 
-from core.global_config.exceptions.exceptions import RepositoryConnectionError, UserDataError
+from core.global_config.exceptions.exceptions import RepositoryConnectionError, ExceptionDataError
 
 logger = logging.getLogger("app")
 
@@ -145,7 +145,7 @@ class TaskService:
             )
             if not task:
                 logger.warning(f"[Service] Tareas para el usuario con ID: {user_id} no encontrada.")
-                raise UserDataError("Tareas no encontradas")
+                raise ExceptionDataError("Tareas no encontradas")
             logger.info(f"[Service] Tareas para el usuario con ID: {user_id} obtenida exitosamente.")
             return task
 
