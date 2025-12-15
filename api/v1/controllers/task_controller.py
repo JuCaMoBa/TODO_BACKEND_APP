@@ -6,7 +6,11 @@ from api.v1.schemas.tasks.task_message_response import TaskMessageResponse
 from api.v1.services.task_service import TaskService
 from api.v1.schemas.tasks.task_create import TaskCreate
 from api.v1.schemas.tasks.task_update import TaskUpdate
-from core.global_config.exceptions.exceptions import RepositoryConnectionError, ExceptionDataError
+from core.global_config.exceptions.exceptions import (
+    RepositoryConflictError,
+    RepositoryConnectionError,
+    ExceptionDataError,
+)
 
 logger = logging.getLogger("app")
 
@@ -29,23 +33,20 @@ class TaskController:
                     message="Tarea creada exitosamente.",
                     status=201
             )
-        except ExceptionDataError as e:
-            logger.error("[Controller] No se pudo crear la tarea")
+        except RepositoryConflictError as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status_code=status.HTTP_409_CONFLICT,
                 detail=str(e)
             )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except ExceptionDataError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
 
     def update_task(self, task_id: int, update_data: TaskUpdate, user_id: int):
@@ -61,22 +62,19 @@ class TaskController:
                         status=200
                     )
         except ExceptionDataError as e:
-            logger.error(f"[Controller] Tarea con ID: {task_id} no encontrada para actualizar.")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=str(e)
             )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except RepositoryConflictError as e:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(e)
+            )
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
 
     def delete_task(self, task_id: int, user_id: int):
@@ -92,22 +90,14 @@ class TaskController:
                         status=200
                     )
         except ExceptionDataError as e:
-            logger.error(f"[Controller] Tarea con ID: {task_id} no encontrada para eliminar.")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=str(e)
             )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
 
     def get_tasks(self, user_id: int):
@@ -120,21 +110,8 @@ class TaskController:
                     message="Tareas obtenidas exitosamente.",
                     status=200
                 )
-        except ExceptionDataError as e:
-            logger.error(f"[controller] Tareas para el usuario con ID: {user_id} no encontrada.")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=str(e)
-            )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
