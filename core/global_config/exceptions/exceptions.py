@@ -6,6 +6,16 @@ class RepositoryConnectionError(Exception):
     pass
 
 
+class RepositoryConflictError(Exception):
+    """Expecion lanzada cuando hy un conflicto con los datos en la base de datos """
+    pass
+
+
+class RepositoryQueryError(Exception):
+    """Excepcion lanzada cuando hay un error interno en la base de datos"""
+    pass
+
+
 class InvalidCredentialsError(Exception):
     """Excepción de dominio para credenciales inválidas."""
     pass
