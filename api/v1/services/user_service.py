@@ -8,7 +8,6 @@ from api.v1.schemas.users.user_create import UserCreate
 from api.v1.schemas.users.user_update import UserUpdate
 from core.global_config.exceptions.exceptions import (
     InvalidCredentialsError,
-    RepositoryConnectionError,
     ExceptionDataError
 )
 from utils.auth_utils import create_access_token
@@ -25,88 +24,64 @@ class UserService:
 
     def create_user(self, user_create: UserCreate):
         """Crea un nuevo usuario."""
-        try:
-            existing_user = self.user_repository.get_user_by_email_or_username(
-                user_create.email
+        existing_user = self.user_repository.get_user_by_email_or_username(
+            user_create.email
+        )
+        if existing_user:
+            logger.warning(
+                f"[Service] El usuario {user_create.email}  ya existe."
             )
-            if existing_user:
-                logger.warning(
-                    f"[Service] El usuario {user_create.email}  ya existe."
-                )
-                raise ExceptionDataError("El usuario ya existe")
+            raise ExceptionDataError("El usuario ya existe")
 
-            hashed_password = hash_password(user_create.password)
+        hashed_password = hash_password(user_create.password)
 
-            user_id = self.user_repository.create_user(
-                username=user_create.username,
-                email=user_create.email,
-                hashed_password=hashed_password,
-                is_active=user_create.is_active
-            )
-            logger.info(f"[Service] Usuario creado exitosamente con ID: {user_id}")
-            return user_id
-
-        except RepositoryConnectionError as repo_exc:
-            logger.error(f"[service] Error en la base de datos al crear el usuario: {repo_exc}")
-            raise
-        except Exception as e:
-            logger.error(f"[service] Error inesperado al crear el usuario: {e}")
-            raise
+        user_id = self.user_repository.create_user(
+            username=user_create.username,
+            email=user_create.email,
+            hashed_password=hashed_password,
+            is_active=user_create.is_active
+        )
+        logger.info(f"[Service] Usuario creado exitosamente con ID: {user_id}")
+        return user_id
 
     def update_user_status(self, user_id: int, user_update: UserUpdate):
         """Actualiza el estado activo de un usuario."""
-        try:
-            updated_user_id = self.user_repository.user_update_status(
-                user_id=user_id,
-                is_active=user_update.is_active
-            )
-            if updated_user_id is None:
-                logger.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
-                raise ExceptionDataError("No se pudo actualizar el usuario")
+        updated_user_id = self.user_repository.user_update_status(
+            user_id=user_id,
+            is_active=user_update.is_active
+        )
+        if updated_user_id is None:
+            logger.warning(f"[Service] Usuario con ID {user_id} no encontrado para actualizar.")
+            raise ExceptionDataError("No se pudo actualizar el usuario")
 
-            logger.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
+        logger.info(f"[Service] Estado del usuario con ID {user_id} actualizado exitosamente")
 
-            return updated_user_id
-
-        except RepositoryConnectionError as repo_exc:
-            logger.error(f"[Service] Error la base de datos al actualizar el estado del usuario: {repo_exc}")
-            raise
-        except Exception as e:
-            logger.error(f"[Service] Error inesperado al actualizar el estado del usuario: {e}")
-            raise
+        return updated_user_id
 
     def login_user(self, user_login_data: OAuth2PasswordRequestForm):
         """Inicia sesion de un usuario."""
-        try:
-            user = self.user_repository.get_user_by_email_or_username(
-                user_login_data.username
-            )
-            if not user:
-                logger.warning("[Service] Intento de inicio de sesion fallido - usuario no encontrado")
-                raise InvalidCredentialsError("Intento de inicio de sesion fallido - credenciales invalidas")
+        user = self.user_repository.get_user_by_email_or_username(
+            user_login_data.username
+        )
+        if not user:
+            logger.warning("[Service] Intento de inicio de sesion fallido - usuario no encontrado")
+            raise InvalidCredentialsError("Intento de inicio de sesion fallido - credenciales invalidas")
 
-            is_password_valid = verify_password(user_login_data.password, user["hashed_password"])
+        is_password_valid = verify_password(user_login_data.password, user["hashed_password"])
 
-            if not is_password_valid:
-                logger.warning("[Service] Intento de inicio de sesion fallido - credenciales invalidas")
-                raise InvalidCredentialsError("Intento de inicio de sesion fallido - credenciales invalidas")
+        if not is_password_valid:
+            logger.warning("[Service] Intento de inicio de sesion fallido - credenciales invalidas")
+            raise InvalidCredentialsError("Intento de inicio de sesion fallido - credenciales invalidas")
 
-            logger.info(
-                f"[Service] Usuario {user_login_data.username} ha iniciado sesion exitosamente")
+        logger.info(
+            f"[Service] Usuario {user_login_data.username} ha iniciado sesion exitosamente")
 
-            token = create_access_token(
-                data={
-                    "sub": user["username"],
-                    "email": user["email"],
-                    "user_id": user["id"],
-                    "is_active": user["is_active"]
-                }
-            )
-            return Token(access_token=token, token_type="bearer")
-
-        except RepositoryConnectionError as repo_exc:
-            logger.error(f"[Service] Error en la base de datos al iniciar sesion: {repo_exc}")
-            raise
-        except Exception as e:
-            logger.error(f"[Service] Error inesperado al iniciar sesion: {e}")
-            raise
+        token = create_access_token(
+            data={
+                "sub": user["username"],
+                "email": user["email"],
+                "user_id": user["id"],
+                "is_active": user["is_active"]
+            }
+        )
+        return Token(access_token=token, token_type="bearer")

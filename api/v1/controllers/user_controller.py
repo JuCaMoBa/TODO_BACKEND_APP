@@ -34,22 +34,14 @@ class UserController:
                 status=201
             )
         except ExceptionDataError as e:
-            logger.error(f"[Controller] el usuario ya exite: {e}")
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail=str(e)
             )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
 
     def update_user_status(self, user_id: int, update_data: UserUpdate):
@@ -65,22 +57,14 @@ class UserController:
                 status=200
             )
         except ExceptionDataError as e:
-            logger.error(f"[Controller] No se pudo actualizar el usuario: {e}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=str(e),
             )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
 
     def login_user(self, user_login_data: OAuth2PasswordRequestForm):
@@ -92,21 +76,13 @@ class UserController:
                 token_type=token.token_type
             )
         except InvalidCredentialsError as e:
-            logger.error(f"[Controller] Credenciales inválidas: {e}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=str(e),
                 headers={"WWW-Authenticate": "Bearer"}
                 )
-        except RepositoryConnectionError as e:
-            logger.error(f"[Controller] Error de BD: {e}")
+        except RepositoryConnectionError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Servicio no disponible"
-            )
-        except Exception as e:
-            logger.error(f"[Controller] Error inesperado: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error"
             )
