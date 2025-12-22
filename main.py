@@ -1,7 +1,6 @@
 """Archivo principal de la aplicación FastAPI."""
 
 import logging
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -16,6 +15,7 @@ from api.v1.routers.users_routes import router as users_router
 from core.global_config.logging.logging_settings import log_config
 from core.global_config.logging.logging import initialize_logging
 from utils.wait_for_postgres import wait_for_postgres
+from core.settings.settings import settings
 
 
 initialize_logging()
@@ -25,9 +25,9 @@ logger.info("Iniciando la aplicación...")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    wait_for_postgres(os.getenv("DB_URL"))
-    create_users_tables(os.getenv("DB_URL"))
-    create_tasks_tables(os.getenv("DB_URL"))
+    wait_for_postgres(settings.DB_URL)
+    create_users_tables(settings.DB_URL)
+    create_tasks_tables(settings.DB_URL)
     logger.info("Tablas creadas o ya existentes.")
 
     yield
